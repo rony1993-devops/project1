@@ -1,29 +1,46 @@
 pipeline {
     agent any
-    stages{
-        stage('build project'){
-            steps{
-                git url:'https://github.com/rony1993-devops/project1.git', branch: "master"
-                sh 'mvn clean package'
-              
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git url: 'https://github.com/rony1993-devops/project1.git', branch: 'master'
             }
         }
-        stage('Build docker image'){
-            steps{
-                script{
+
+        stage('Build Project') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
                     sh 'docker build -t rony1993/staragileprojectfinance:v1 .'
                     sh 'docker images'
                 }
             }
         }
-         
-        
-     stage('Deploy') {
+
+        stage('Docker Login') {
             steps {
-                sh 'sudo docker run -itd --name My-first-containe21211 -p 8083:8081 rony1993/staragileprojectfinance:v1'
-                  
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-pwd', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh 'echo $PASS | docker login -u $USER --password-stdin'
                 }
             }
-        
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                sh 'docker push rony1993/staragileprojectfinance:v1'
+            }
+        }
+
+        stage('Deploy Container') {
+            steps {
+                sh 'docker run -itd --name My-first-container -p 8083:80 rony1993/staragileprojectfinance:v1'
+            }
+        }
     }
 }
