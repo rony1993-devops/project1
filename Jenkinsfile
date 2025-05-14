@@ -39,7 +39,7 @@ pipeline {
 
         stage('Deploy Container') {
             steps {
-                sh 'docker run -itd --name My-first-container -p 8083:80 rony1993/staragileprojectfinance:v1'
+                sh 'docker run -itd --name My-first-container -p 8083:8081 rony1993/staragileprojectfinance:v1'
             }
         }
     }
